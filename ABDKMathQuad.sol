@@ -1176,6 +1176,19 @@ library ABDKMathQuad {
   }
 
   /**
+   * Calculate x^y.
+   *
+   * @param x quadruple precision number
+   * @param y quadruple precision number
+   * @return quadruple precision number
+   */
+  function pow (bytes16 x, bytes16 y) internal pure returns (bytes16) {
+    unchecked {
+      return pow_2(mul(y, log_2(x)));
+    }
+  }
+
+  /**
    * Calculate e^x.
    *
    * @param x quadruple precision number
