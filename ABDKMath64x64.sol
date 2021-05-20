@@ -17,12 +17,12 @@ library ABDKMath64x64 {
   /*
    * Minimum value signed 64.64-bit fixed point number may have. 
    */
-  int128 private constant MIN_64x64 = -0x80000000000000000000000000000000;
+  int128 private constant MIN_64X64 = -0x80000000000000000000000000000000;
 
   /*
    * Maximum value signed 64.64-bit fixed point number may have. 
    */
-  int128 private constant MAX_64x64 = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+  int128 private constant MAX_64X64 = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
 
   /**
    * Convert signed 256-bit integer number into signed 64.64-bit fixed point
@@ -33,7 +33,7 @@ library ABDKMath64x64 {
    */
   function fromInt (int256 x) internal pure returns (int128) {
     unchecked {
-      require (x >= -0x8000000000000000 && x <= 0x7FFFFFFFFFFFFFFF);
+      require (x >= -0x8000000000000000 && x <= 0x7FFFFFFFFFFFFFFF, "x is out of bounds!");
       return int128 (x << 64);
     }
   }
@@ -60,7 +60,7 @@ library ABDKMath64x64 {
    */
   function fromUInt (uint256 x) internal pure returns (int128) {
     unchecked {
-      require (x <= 0x7FFFFFFFFFFFFFFF);
+      require (x <= 0x7FFFFFFFFFFFFFFF, "x is out of bounds!");
       return int128 (int256 (x << 64));
     }
   }
@@ -74,7 +74,7 @@ library ABDKMath64x64 {
    */
   function toUInt (int128 x) internal pure returns (uint64) {
     unchecked {
-      require (x >= 0);
+      require (x >= 0, "x is out of bounds!");
       return uint64 (uint128 (x >> 64));
     }
   }
@@ -89,7 +89,7 @@ library ABDKMath64x64 {
   function from128x128 (int256 x) internal pure returns (int128) {
     unchecked {
       int256 result = x >> 64;
-      require (result >= MIN_64x64 && result <= MAX_64x64);
+      require (result >= MIN_64X64 && result <= MAX_64X64, "result is out of bounds!");
       return int128 (result);
     }
   }
@@ -117,7 +117,7 @@ library ABDKMath64x64 {
   function add (int128 x, int128 y) internal pure returns (int128) {
     unchecked {
       int256 result = int256(x) + y;
-      require (result >= MIN_64x64 && result <= MAX_64x64);
+      require (result >= MIN_64X64 && result <= MAX_64X64, "result is out of bounds!");
       return int128 (result);
     }
   }
@@ -132,7 +132,7 @@ library ABDKMath64x64 {
   function sub (int128 x, int128 y) internal pure returns (int128) {
     unchecked {
       int256 result = int256(x) - y;
-      require (result >= MIN_64x64 && result <= MAX_64x64);
+      require (result >= MIN_64X64 && result <= MAX_64X64, "result is out of bounds!");
       return int128 (result);
     }
   }
@@ -147,7 +147,7 @@ library ABDKMath64x64 {
   function mul (int128 x, int128 y) internal pure returns (int128) {
     unchecked {
       int256 result = int256(x) * y >> 64;
-      require (result >= MIN_64x64 && result <= MAX_64x64);
+      require (result >= MIN_64X64 && result <= MAX_64X64, "result is out of bounds!");
       return int128 (result);
     }
   }
@@ -162,9 +162,9 @@ library ABDKMath64x64 {
    */
   function muli (int128 x, int256 y) internal pure returns (int256) {
     unchecked {
-      if (x == MIN_64x64) {
+      if (x == MIN_64X64) {
         require (y >= -0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF &&
-          y <= 0x1000000000000000000000000000000000000000000000000);
+          y <= 0x1000000000000000000000000000000000000000000000000, "y is out of bounds!");
         return -y << 63;
       } else {
         bool negativeResult = false;
@@ -179,11 +179,11 @@ library ABDKMath64x64 {
         uint256 absoluteResult = mulu (x, uint256 (y));
         if (negativeResult) {
           require (absoluteResult <=
-            0x8000000000000000000000000000000000000000000000000000000000000000);
+            0x8000000000000000000000000000000000000000000000000000000000000000, "absoluteResult is out of bounds!");
           return -int256 (absoluteResult); // We rely on overflow behavior here
         } else {
           require (absoluteResult <=
-            0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF);
+            0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF, "absoluteResult is out of bounds!");
           return int256 (absoluteResult);
         }
       }
@@ -202,16 +202,16 @@ library ABDKMath64x64 {
     unchecked {
       if (y == 0) return 0;
 
-      require (x >= 0);
+      require (x >= 0, "x is out of bounds!");
 
       uint256 lo = (uint256 (int256 (x)) * (y & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)) >> 64;
       uint256 hi = uint256 (int256 (x)) * (y >> 128);
 
-      require (hi <= 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF);
+      require (hi <= 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF, "hi is out of bounds!");
       hi <<= 64;
 
       require (hi <=
-        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF - lo);
+        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF - lo, "hi is out of bounds!");
       return hi + lo;
     }
   }
@@ -226,9 +226,9 @@ library ABDKMath64x64 {
    */
   function div (int128 x, int128 y) internal pure returns (int128) {
     unchecked {
-      require (y != 0);
+      require (y != 0, "y is out of bounds!");
       int256 result = (int256 (x) << 64) / y;
-      require (result >= MIN_64x64 && result <= MAX_64x64);
+      require (result >= MIN_64X64 && result <= MAX_64X64, "result is out of bounds!");
       return int128 (result);
     }
   }
@@ -243,7 +243,7 @@ library ABDKMath64x64 {
    */
   function divi (int256 x, int256 y) internal pure returns (int128) {
     unchecked {
-      require (y != 0);
+      require (y != 0, "y is out of bounds!");
 
       bool negativeResult = false;
       if (x < 0) {
@@ -256,10 +256,10 @@ library ABDKMath64x64 {
       }
       uint128 absoluteResult = divuu (uint256 (x), uint256 (y));
       if (negativeResult) {
-        require (absoluteResult <= 0x80000000000000000000000000000000);
+        require (absoluteResult <= 0x80000000000000000000000000000000, "absoluteResult is out of bounds!");
         return -int128 (absoluteResult); // We rely on overflow behavior here
       } else {
-        require (absoluteResult <= 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF);
+        require (absoluteResult <= 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF, "absoluteResult is out of bounds!");
         return int128 (absoluteResult); // We rely on overflow behavior here
       }
     }
@@ -275,9 +275,9 @@ library ABDKMath64x64 {
    */
   function divu (uint256 x, uint256 y) internal pure returns (int128) {
     unchecked {
-      require (y != 0);
+      require (y != 0, "y is out of bounds!");
       uint128 result = divuu (x, y);
-      require (result <= uint128 (MAX_64x64));
+      require (result <= uint128 (MAX_64X64), "result is out of bounds!");
       return int128 (result);
     }
   }
@@ -290,7 +290,7 @@ library ABDKMath64x64 {
    */
   function neg (int128 x) internal pure returns (int128) {
     unchecked {
-      require (x != MIN_64x64);
+      require (x != MIN_64X64, "x is out of bounds!");
       return -x;
     }
   }
@@ -303,7 +303,7 @@ library ABDKMath64x64 {
    */
   function abs (int128 x) internal pure returns (int128) {
     unchecked {
-      require (x != MIN_64x64);
+      require (x != MIN_64X64, "x is out of bounds!");
       return x < 0 ? -x : x;
     }
   }
@@ -317,9 +317,9 @@ library ABDKMath64x64 {
    */
   function inv (int128 x) internal pure returns (int128) {
     unchecked {
-      require (x != 0);
+      require (x != 0, "x is out of bounds!");
       int256 result = int256 (0x100000000000000000000000000000000) / x;
-      require (result >= MIN_64x64 && result <= MAX_64x64);
+      require (result >= MIN_64X64 && result <= MAX_64X64, "result is out of bounds!");
       return int128 (result);
     }
   }
@@ -348,9 +348,9 @@ library ABDKMath64x64 {
   function gavg (int128 x, int128 y) internal pure returns (int128) {
     unchecked {
       int256 m = int256 (x) * int256 (y);
-      require (m >= 0);
+      require (m >= 0, "m is out of bounds!");
       require (m <
-          0x4000000000000000000000000000000000000000000000000000000000000000);
+          0x4000000000000000000000000000000000000000000000000000000000000000, "m is out of bounds!");
       return int128 (sqrtu (uint256 (m)));
     }
   }
@@ -409,7 +409,7 @@ library ABDKMath64x64 {
 
         uint256 resultShift = 0;
         while (y != 0) {
-          require (absXShift < 64);
+          require (absXShift < 64, "absXShift is out of bounds!");
 
           if (y & 0x1 != 0) {
             absResult = absResult * absX >> 127;
@@ -429,11 +429,11 @@ library ABDKMath64x64 {
           y >>= 1;
         }
 
-        require (resultShift < 64);
+        require (resultShift < 64, "resultShift is out of bounds!");
         absResult >>= 64 - resultShift;
       }
       int256 result = negative ? -int256 (absResult) : int256 (absResult);
-      require (result >= MIN_64x64 && result <= MAX_64x64);
+      require (result >= MIN_64X64 && result <= MAX_64X64, "result is out of bounds!");
       return int128 (result);
     }
   }
@@ -446,7 +446,7 @@ library ABDKMath64x64 {
    */
   function sqrt (int128 x) internal pure returns (int128) {
     unchecked {
-      require (x >= 0);
+      require (x >= 0, "x is out of bounds!");
       return int128 (sqrtu (uint256 (int256 (x)) << 64));
     }
   }
@@ -457,9 +457,9 @@ library ABDKMath64x64 {
    * @param x signed 64.64-bit fixed point number
    * @return signed 64.64-bit fixed point number
    */
-  function log_2 (int128 x) internal pure returns (int128) {
+  function logBase2 (int128 x) internal pure returns (int128) {
     unchecked {
-      require (x > 0);
+      require (x > 0, "x is out of bounds!");
 
       int256 msb = 0;
       int256 xc = x;
@@ -492,10 +492,10 @@ library ABDKMath64x64 {
    */
   function ln (int128 x) internal pure returns (int128) {
     unchecked {
-      require (x > 0);
+      require (x > 0, "x is out of bounds!");
 
       return int128 (int256 (
-          uint256 (int256 (log_2 (x))) * 0xB17217F7D1CF79ABC9E3B39803F2F6AF >> 128));
+          uint256 (int256 (logBase2 (x))) * 0xB17217F7D1CF79ABC9E3B39803F2F6AF >> 128));
     }
   }
 
@@ -505,9 +505,9 @@ library ABDKMath64x64 {
    * @param x signed 64.64-bit fixed point number
    * @return signed 64.64-bit fixed point number
    */
-  function exp_2 (int128 x) internal pure returns (int128) {
+  function expBase2 (int128 x) internal pure returns (int128) {
     unchecked {
-      require (x < 0x400000000000000000); // Overflow
+      require (x < 0x400000000000000000, "x is out of bounds!"); // Overflow
 
       if (x < -0x400000000000000000) return 0; // Underflow
 
@@ -643,7 +643,7 @@ library ABDKMath64x64 {
         result = result * 0x10000000000000000B17217F7D1CF79AB >> 128;
 
       result >>= uint256 (int256 (63 - (x >> 64)));
-      require (result <= uint256 (int256 (MAX_64x64)));
+      require (result <= uint256 (int256 (MAX_64X64)), "result is out of bounds!");
 
       return int128 (int256 (result));
     }
@@ -657,11 +657,11 @@ library ABDKMath64x64 {
    */
   function exp (int128 x) internal pure returns (int128) {
     unchecked {
-      require (x < 0x400000000000000000); // Overflow
+      require (x < 0x400000000000000000, "x is out of bounds!"); // Overflow
 
       if (x < -0x400000000000000000) return 0; // Underflow
 
-      return exp_2 (
+      return expBase2 (
           int128 (int256 (x) * 0x171547652B82FE1777D0FFDA0D23A7D12 >> 128));
     }
   }
@@ -676,7 +676,7 @@ library ABDKMath64x64 {
    */
   function divuu (uint256 x, uint256 y) private pure returns (uint128) {
     unchecked {
-      require (y != 0);
+      require (y != 0, "y is out of bounds!");
 
       uint256 result;
 
@@ -693,7 +693,7 @@ library ABDKMath64x64 {
         if (xc >= 0x2) msb += 1;  // No need to shift xc anymore
 
         result = (x << 255 - msb) / ((y - 1 >> msb - 191) + 1);
-        require (result <= 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF);
+        require (result <= 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF, "result is out of bounds!");
 
         uint256 hi = result * (y >> 128);
         uint256 lo = result * (y & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF);
@@ -712,7 +712,7 @@ library ABDKMath64x64 {
         result += xl / y;
       }
 
-      require (result <= 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF);
+      require (result <= 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF, "result is out of bounds!");
       return uint128 (result);
     }
   }
