@@ -33,6 +33,16 @@ library ABDKMathQuad {
   bytes16 private constant NEGATIVE_INFINITY = 0xFFFF0000000000000000000000000000;
 
   /*
+   * -Log(e)/log(2)
+   */
+  bytes16 private constant LOG_BASE_2_E = 0x3FFF71547652B82FE1777D0FFDA0D23A;
+
+  /*
+   * -log(2)/Log(e)
+   */
+  bytes16 private constant INV_LOG_BASE_2_E = 0x3FFE62E42FEFA39EF35793C7673007E5;
+
+  /*
    * Canonical NAN value.
    */
   bytes16 private constant NAN = 0x7FFF8000000000000000000000000000;
@@ -988,7 +998,7 @@ library ABDKMathQuad {
    */
   function ln (bytes16 x) internal pure returns (bytes16) {
     unchecked {
-      return mul (logBase2 (x), 0x3FFE62E42FEFA39EF35793C7673007E5);
+      return mul (logBase2 (x), INV_LOG_BASE_2_E);
     }
   }
 
@@ -1196,7 +1206,7 @@ library ABDKMathQuad {
    */
   function exp (bytes16 x) internal pure returns (bytes16) {
     unchecked {
-      return powerBase2 (mul (x, 0x3FFF71547652B82FE1777D0FFDA0D23A));
+      return powerBase2 (mul (x, LOG_BASE_2_E));
     }
   }
 
