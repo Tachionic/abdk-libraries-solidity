@@ -40,7 +40,7 @@ library ABDKMathQuad {
   /*
    * -log(2)/Log(e)
    */
-  bytes16 private constant INV_LOG_BASE_2_E = 0x3FFE62E42FEFA39EF35793C7673007E5;
+  bytes16 private constant LN_2 = 0x3FFE62E42FEFA39EF35793C7673007E5;
 
   /*
    * Canonical NAN value.
@@ -998,7 +998,7 @@ library ABDKMathQuad {
    */
   function ln (bytes16 x) internal pure returns (bytes16) {
     unchecked {
-      return mul (logBase2 (x), INV_LOG_BASE_2_E);
+      return mul (logBase2 (x), LN_2);
     }
   }
 
